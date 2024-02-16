@@ -1,0 +1,22 @@
+/* index.module.css */
+.mainDiv {
+  display: flex; /* Enable flexbox layout */
+  flex-direction: column; /* Stack the content vertically */
+}
+
+.topNav {
+  z-index: 100;
+  border: 1px solid red;
+}
+.bg {
+  z-index: 0;
+}
+
+.content {
+  display: flex;
+}
+
+.childrenDiv {
+  flex: 1; /* Allow the main content area to take up the remaining space */
+  /* Styles for the main content area */
+}
