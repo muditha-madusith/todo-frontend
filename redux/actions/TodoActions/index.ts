@@ -18,9 +18,8 @@ export const getTodos = () => async (dispatch: Dispatch<TodoDispatchTypes>) => {
   dispatch({
     type: GET_TODOS_LOADING,
   });
-  // console.log(process.env.BACKEND_BASE_URL)
   await axios
-    .get(`http://localhost:3001/api/todos`)
+    .get(`${process.env.BACKEND_BASE_URL}/api/todos`)
     .then((res) => {
       console.log(res.data, "todosssssss");
       dispatch({
@@ -43,7 +42,7 @@ export const createToDo =
       type: CREATE_TODO_LOADING,
     });
     await axios
-      .post(`http://localhost:3001/api/todos`, { todo })
+      .post(`${process.env.BACKEND_BASE_URL}/api/todos`, { todo })
       .then((res) => {
         console.log(res.data, "Create todo success.....");
         dispatch({
@@ -66,7 +65,7 @@ export const createToDo =
       type: DELETE_TODO_LOADING,
     });
     await axios
-      .delete(`http://localhost:3001/api/todos/${id}`)
+      .delete(`${process.env.BACKEND_BASE_URL}/api/todos/${id}`)
       .then((res) => {
         console.log(res.data, "Delete todo success.....");
         dispatch({
