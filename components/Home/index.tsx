@@ -1,37 +1,69 @@
-import React, { useState } from 'react';
-import styles from './index.module.css';
+import React, { FunctionComponent, useEffect, useState } from "react";
+import styles from "./index.module.css";
 import { FaPlus } from "react-icons/fa6";
 import { MdDelete } from "react-icons/md";
 
+import { AppActions } from "@/redux/actions/AppActions";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { ThunkDispatch } from "redux-thunk";
+import { AppState } from "@/redux/store";
+import { createToDo, deleteToDo, getTodos } from "@/redux/actions/TodoActions";
+import { TodoState } from "@/redux/types/TodoActionTypes";
+
 interface Todo {
-  id: number;
-  text: string;
+  _id: string;
+  todo: string;
 }
 
-const HomeIndex = () => {
-  const [inputValue, setInputValue] = useState('');
+interface LinkStateProps {
+  todos: TodoState;
+}
+
+interface LinkDispatchProps {
+  getTodos: () => void;
+  createToDo: (todo: string) => void;
+  deleteToDo: (id: string) => void;
+}
+
+interface ComponentsProps {}
+
+type Props = LinkStateProps & LinkDispatchProps & ComponentsProps;
+
+const HomeIndex: FunctionComponent<Props> = ({
+  getTodos,
+  createToDo,
+  deleteToDo,
+  todos: { todo, createTodo, deleteTodo
+   },
+}) => {
+  const [inputValue, setInputValue] = useState("");
   const [todos, setTodos] = useState<Todo[]>([]);
+
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
 
   const handleAddTodo = () => {
-    if (inputValue.trim() !== '') {
-      const newTodo: Todo = {
-        id: Date.now(),
-        text: inputValue
-      };
-      setTodos([...todos, newTodo]);
-      setInputValue('');
+    createToDo(inputValue);
+    setInputValue("");
+  };
+
+  const handleDeleteTodo = (id: string) => {
+    deleteToDo(id);
+  };
+
+  useEffect(() => {
+    getTodos();
+  }, [createTodo, deleteTodo]);
+  
+  useEffect(() => {
+    if (todo) {
+      setTodos(todo.todos);
     }
-  };
-
-  const handleDeleteTodo = (id: number) => {
-    const updatedTodos = todos.filter(todo => todo.id !== id);
-    setTodos(updatedTodos);
-  };
-
+  }, [todo]);
+  
   return (
     <div className={styles.main}>
       <div className={styles.toBox}>
@@ -48,10 +80,13 @@ const HomeIndex = () => {
           </div>
         </div>
         <div className={styles.display}>
-          {todos.map(todo => (
-            <div key={todo.id} className={styles.tod}>
-              {todo.text}
-              <div className={styles.delI} onClick={() => handleDeleteTodo(todo.id)}>
+          {todos.map((todo) => (
+            <div key={todo._id} className={styles.tod}>
+              {todo.todo}
+              <div
+                className={styles.delI}
+                onClick={() => handleDeleteTodo(todo._id)}
+              >
                 <MdDelete />
               </div>
             </div>
@@ -62,4 +97,16 @@ const HomeIndex = () => {
   );
 };
 
-export default HomeIndex;
+const mapStateToProps = (state: AppState): LinkStateProps => ({
+  todos: state.todo,
+});
+
+const mapDispatchToProps = (
+  dispatch: ThunkDispatch<any, any, AppActions>
+): LinkDispatchProps => ({
+  getTodos: bindActionCreators(getTodos, dispatch),
+  createToDo: bindActionCreators(createToDo, dispatch),
+  deleteToDo: bindActionCreators(deleteToDo, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeIndex);
